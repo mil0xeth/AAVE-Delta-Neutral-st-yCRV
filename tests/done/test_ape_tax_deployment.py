@@ -14,29 +14,25 @@ def test_ape_tax(
     token_whale,
     dai_whale,
     gov,
-    gemJoinAdapter,
-    osmProxy,
     apetax_vault,
     amount,
-    ilk,
     import_swap_router_selection_dict,
-    chainlink
+    chainlink,
+    collateralToken
 ):
     vault = apetax_vault
     daddy = gov
     gov = vault.governance()
     vault.setDepositLimit(2**256-1, {"from": gov})
 
-    clone_tx = cloner.cloneMakerDaiDelegate(
+    clone_tx = cloner.cloneMarketLib(
         vault,
         strategist,
         strategist,
         strategist,
+        collateralToken,
         yvault,
         f"StrategyMaker{token.symbol()}",
-        ilk,
-        gemJoinAdapter,
-        osmProxy,
         chainlink,
         {"from": strategist},
     )
@@ -45,13 +41,7 @@ def test_ape_tax(
         "Strategy", clone_tx.events["Cloned"]["clone"], strategy.abi
     )
     swap_router_selection_dict = import_swap_router_selection_dict
-    cloned_strategy.setSwapRouterSelection(swap_router_selection_dict[token.symbol()]['swapRouterSelection'], swap_router_selection_dict[token.symbol()]['feeInvestmentTokenToMidUNIV3'], swap_router_selection_dict[token.symbol()]['feeMidToWantUNIV3'], swap_router_selection_dict[token.symbol()]['midTokenChoice'],  {"from": gov})
-    # White-list the strategy in the OSM!
-    try:
-        osmProxy.setAuthorized(cloned_strategy, {"from": daddy})
-    except:
-        print("osm didn't work")
-
+    cloned_strategy.setSwapRouterSelection(swap_router_selection_dict[token.symbol()]['swapRouterSelection'], swap_router_selection_dict[token.symbol()]['feeBorrowTokenToMidUNIV3'], swap_router_selection_dict[token.symbol()]['feeMidToWantUNIV3'], swap_router_selection_dict[token.symbol()]['midTokenChoice'],  {"from": gov})
     # Reduce other strategies debt allocation
     for i in range(0, 20):
         strat_address = vault.withdrawalQueue(i)
@@ -83,7 +73,6 @@ def test_ape_tax(
 
     # Send some profit to yvDAI
     dai.transfer(yvault, yvault.totalDebt() * 0.01, {"from": dai_whale})
-    cloned_strategy.setLeaveDebtBehind(False, {"from": gov})
     tx = cloned_strategy.harvest({"from": gov})
 
     print(f"After second harvest")

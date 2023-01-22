@@ -7,8 +7,8 @@ from brownie import config, convert, interface, Contract, ZERO_ADDRESS
     params=[
         #"WETH",
         #"YFI",
-        "WBTC",
-        "YFI",
+        #"WBTC",
+        #"YFI",
         "WETH",
         #"wstETH",
         #"LINK",
@@ -28,12 +28,12 @@ useOSMforYFI = True
 #Allow switching between Sushi (0), Univ2 (1), Univ3 (2), yswaps (3) -- Mid is the intermediatry token to swap to in case the want token is not WETH
 #midTokenChoice: 0 = through WETH, 1 = through USDC, 2 = direct
 swap_router_selection_dict = {
-    "YFI": {'swapRouterSelection': 0, 'feeInvestmentTokenToMidUNIV3': 3000, 'feeMidToWantUNIV3': 3000, 'midTokenChoice': 0},
-    "WETH": {'swapRouterSelection': 2, 'feeInvestmentTokenToMidUNIV3': 500, 'feeMidToWantUNIV3': 500, 'midTokenChoice': 0}, #sushi: 0, 100, 500, 0   #univ3 through usdc: 2,100,500,1
-    "LINK": {'swapRouterSelection': 2, 'feeInvestmentTokenToMidUNIV3': 500, 'feeMidToWantUNIV3': 3000, 'midTokenChoice': 0},
-    "wstETH": {'swapRouterSelection': 2, 'feeInvestmentTokenToMidUNIV3': 500, 'feeMidToWantUNIV3': 500, 'midTokenChoice': 0}, #sushi: 0, 100, 500, 0
-    #"WBTC": {'swapRouterSelection': 2, 'feeInvestmentTokenToMidUNIV3': 100, 'feeMidToWantUNIV3': 500, 'midTokenChoice': 1},
-    "WBTC": {'swapRouterSelection': 2, 'feeInvestmentTokenToMidUNIV3': 500, 'feeMidToWantUNIV3': 500, 'midTokenChoice': 0},
+    "YFI": {'swapRouterSelection': 0, 'feeBorrowTokenToMidUNIV3': 3000, 'feeMidToWantUNIV3': 3000, 'midTokenChoice': 0},
+    "WETH": {'swapRouterSelection': 2, 'feeBorrowTokenToMidUNIV3': 500, 'feeMidToWantUNIV3': 500, 'midTokenChoice': 0}, #sushi: 0, 100, 500, 0   #univ3 through usdc: 2,100,500,1
+    "LINK": {'swapRouterSelection': 2, 'feeBorrowTokenToMidUNIV3': 500, 'feeMidToWantUNIV3': 3000, 'midTokenChoice': 0},
+    "wstETH": {'swapRouterSelection': 2, 'feeBorrowTokenToMidUNIV3': 500, 'feeMidToWantUNIV3': 500, 'midTokenChoice': 0}, #sushi: 0, 100, 500, 0
+    #"WBTC": {'swapRouterSelection': 2, 'feeBorrowTokenToMidUNIV3': 100, 'feeMidToWantUNIV3': 500, 'midTokenChoice': 1},
+    "WBTC": {'swapRouterSelection': 2, 'feeBorrowTokenToMidUNIV3': 500, 'feeMidToWantUNIV3': 500, 'midTokenChoice': 0},
 }
 
 token_addresses = {
@@ -46,18 +46,15 @@ token_addresses = {
 
 token_prices = {
     "YFI": 5_400,
-    "WETH": 1_300,
+    "WETH": 1_650,
     "LINK": 6,
     "WBTC": 17_000,
     "wstETH": 1_357,
 }
 
-ilk_bytes = {
-    "YFI": "0x5946492d41000000000000000000000000000000000000000000000000000000",
-    "WETH": "0x4554482d43000000000000000000000000000000000000000000000000000000", #ETH-C
-    "wstETH": "0x5753544554482d41000000000000000000000000000000000000000000000000",
-    "LINK": "0x4c494e4b2d410000000000000000000000000000000000000000000000000000",
-    "WBTC": "0x574254432d430000000000000000000000000000000000000000000000000000", #WBTC-C
+collateralToken_list = {
+    "WETH": "0x41c84c0e2EE0b740Cf0d31F63f3B6F627DC6b393", #ETH-C
+    "WBTC": "0x8Fc8BFD80d6A9F17Fb98A373023d72531792B431",
 }
 
 gemJoin_adapters = {
@@ -94,11 +91,20 @@ chainlink_oracles = {
 
 whale_addresses = {
     "YFI": "0xf977814e90da44bfa03b6295a0616a897441acec",  #or: 0xF977814e90dA44bFA03b6295A0616a897441aceC
-    "WETH": "0x57757e3d981446d585af0d9ae4d7df6d64647806",
+    "WETH": "0x2f0b23f53734252bda2277357e97e1517d6b042a", #0xf584f8728b874a6a5c7a8d4d387c9aae9172d621 
     "wstETH": "0x2faf487a4414fe77e2327f0bf4ae2a264a776ad2",
     "LINK": "0xf977814e90da44bfa03b6295a0616a897441acec",
     "WBTC": "0x28c6c06298d514db089934071355e5743bf21d60",
 }
+
+whale2_addresses = {
+    "YFI": "0xf977814e90da44bfa03b6295a0616a897441acec",  #or: 0xF977814e90dA44bFA03b6295A0616a897441aceC
+    "WETH": "0x2f0b23f53734252bda2277357e97e1517d6b042a",
+    "wstETH": "0x2faf487a4414fe77e2327f0bf4ae2a264a776ad2",
+    "LINK": "0xf977814e90da44bfa03b6295a0616a897441acec",
+    "WBTC": "0x28c6c06298d514db089934071355e5743bf21d60",
+}
+
 
 apetax_vault_address = {
     "YFI": "0xdb25cA703181E7484a155DD612b06f57E12Be5F0",
@@ -147,9 +153,9 @@ maker_floor = {
 # '5946492d41000000000000000000000000000000000000000000000000000000'
 
 @pytest.fixture 
-def ilk(token):
-    ilk = ilk_bytes[token.symbol()]
-    yield ilk
+def collateralToken(token):
+    collateralToken = collateralToken_list[token.symbol()]
+    yield collateralToken
 
 @pytest.fixture
 def gemJoinAdapter(token):
@@ -157,7 +163,7 @@ def gemJoinAdapter(token):
     yield gemJoin
 
 @pytest.fixture 
-def osmProxy(token, YFIosmProxy): # Allow the strategy to query the OSM proxy
+def osmProxy(token): # Allow the strategy to query the OSM proxy
     if (token.symbol() == "YFI" and useOSMforYFI == True):
         #yield YFIosmProxy
         yield Contract("0x08569B52B009F1Cd3C7765f0E3b2e49e139618bC")
@@ -176,23 +182,15 @@ def chainlink(token):
     else:
         yield Contract(chainlink_oracles[token.symbol()])
 
-@pytest.fixture
-def custom_osm(TestCustomOSM, gov):
-    yield TestCustomOSM.deploy({"from": gov})
 
-@pytest.fixture
-def YFIwhitelistedOSM():
-    # Allow the strategy to query the OSM proxy
-    osm = Contract("0x208EfCD7aad0b5DD49438E0b6A0f38E951A50E5f")
-    yield osm
-
-@pytest.fixture
-def YFIosmProxy(gov, YFIOSMAdapter):
-    yield YFIOSMAdapter.deploy({"from": gov})
 
 @pytest.fixture(scope="session", autouse=True)
 def token_whale(accounts, token):
     yield accounts.at(whale_addresses[token.symbol()], force=True)
+    
+@pytest.fixture(scope="session", autouse=True)
+def token_whale2(accounts, token):
+    yield accounts.at(whale2_addresses[token.symbol()], force=True)
 
 @pytest.fixture(scope="session")
 def apetax_vault(token):
@@ -213,8 +211,8 @@ def isolation(fn_isolation):
 
 
 @pytest.fixture(autouse=True)
-def lib(gov, MakerDaiDelegateLib):
-    yield MakerDaiDelegateLib.deploy({"from": gov})
+def lib(gov, MarketLib):
+    yield MarketLib.deploy({"from": gov})
 
 
 @pytest.fixture
@@ -312,15 +310,15 @@ def router():
 
 
 @pytest.fixture(autouse=True)
-def amount(token, token_whale, user):
+def amount(token, token_whale2, user):
     # this will get the number of tokens (around $1m worth of token)
     hundredthousanddollars = round(50_000 / token_prices[token.symbol()])
     amount = hundredthousanddollars * 10 ** token.decimals()
     # # In order to get some funds for the token you are about to use,
     # # it impersonate a whale address
-    if amount > token.balanceOf(token_whale):
-        amount = token.balanceOf(token_whale)
-    token.transfer(user, amount, {"from": token_whale})
+    if amount > token.balanceOf(token_whale2):
+        amount = token.balanceOf(token_whale2)
+    token.transfer(user, amount, {"from": token_whale2})
     yield amount
 
 
@@ -363,25 +361,11 @@ def import_swap_router_selection_dict():
 
 
 @pytest.fixture
-def strategy(vault, Strategy, gov, osmProxy, cloner, YFIwhitelistedOSM, token):
+def strategy(vault, Strategy, gov, cloner, token):
     strategy = Strategy.at(cloner.original())
-    strategy.setLeaveDebtBehind(False, {"from": gov})
     strategy.setDoHealthCheck(True, {"from": gov})
-    strategy.setSwapRouterSelection(swap_router_selection_dict[token.symbol()]['swapRouterSelection'], swap_router_selection_dict[token.symbol()]['feeInvestmentTokenToMidUNIV3'], swap_router_selection_dict[token.symbol()]['feeMidToWantUNIV3'], swap_router_selection_dict[token.symbol()]['midTokenChoice'], {"from": gov})
+    strategy.setSwapRouterSelection(swap_router_selection_dict[token.symbol()]['swapRouterSelection'], swap_router_selection_dict[token.symbol()]['feeBorrowTokenToMidUNIV3'], swap_router_selection_dict[token.symbol()]['feeMidToWantUNIV3'], swap_router_selection_dict[token.symbol()]['midTokenChoice'], {"from": gov})
     vault.addStrategy(strategy, 10_000, 0, 2 ** 256 - 1, 1_000, {"from": gov})
-
-    # Allow the strategy to query the OSM proxy
-    #try:
-    #    YFIwhitelistedOSM.set_user(osmProxy, True, {"from": gov})
-    #except:
-    #    print("osmProxy not responsive")
-    try:
-        osmProxy.setAuthorized(strategy, {"from": gov})
-    except: 
-        try:
-            osmProxy.set_user(strategy, True, {"from": gov})
-        except: 
-            print("osmProxy not responsive")
     yield strategy
 
 @pytest.fixture
@@ -391,39 +375,21 @@ def test_strategy(
     vault,
     yvault,
     token,
-    gemJoinAdapter,
-    osmProxy,
     gov,
-    ilk,
-    YFIwhitelistedOSM,
-    chainlink
+    chainlink,
+    collateralToken
 ):
     strategy = strategist.deploy(
         TestStrategy,
         vault,
+        collateralToken,
         yvault,
-        f"StrategyMakerV3{token.symbol()}",
-        ilk,
-        gemJoinAdapter,
-        osmProxy,
+        f"Strategy{token.symbol()}",
         chainlink
     )
-    strategy.setSwapRouterSelection(swap_router_selection_dict[token.symbol()]['swapRouterSelection'], swap_router_selection_dict[token.symbol()]['feeInvestmentTokenToMidUNIV3'], swap_router_selection_dict[token.symbol()]['feeMidToWantUNIV3'], swap_router_selection_dict[token.symbol()]['midTokenChoice'], {"from": gov})
-    strategy.setLeaveDebtBehind(False, {"from": gov})
+    strategy.setSwapRouterSelection(swap_router_selection_dict[token.symbol()]['swapRouterSelection'], swap_router_selection_dict[token.symbol()]['feeBorrowTokenToMidUNIV3'], swap_router_selection_dict[token.symbol()]['feeMidToWantUNIV3'], swap_router_selection_dict[token.symbol()]['midTokenChoice'], {"from": gov})
     strategy.setDoHealthCheck(True, {"from": gov})
     vault.addStrategy(strategy, 10_000, 0, 2 ** 256 - 1, 1_000, {"from": gov})
-    # Allow the strategy to query the OSM proxy
-    #try: #in case it's YFI token
-    #    YFIwhitelistedOSM.set_user(osmProxy, True, {"from": gov})
-    #except:
-    #    print("osmProxy not responsive")
-    try: #in case it's not YFI token (e.g. WETH)
-        osmProxy.setAuthorized(strategy, {"from": gov})
-    except: 
-        try:
-            osmProxy.set_user(strategy, True, {"from": gov})
-        except: 
-            print("osmProxy not responsive")
     yield strategy
 
 
@@ -437,20 +403,16 @@ def cloner(
     vault,
     yvault,
     token,
-    gemJoinAdapter,
-    osmProxy,
-    MakerDaiDelegateCloner,
-    ilk,
-    chainlink
+    MarketLibCloner,
+    chainlink,
+    collateralToken,
 ):
     cloner = strategist.deploy(
-        MakerDaiDelegateCloner,
+        MarketLibCloner,
         vault,
+        collateralToken,
         yvault,
-        f"StrategyMakerV3{token.symbol()}",
-        ilk,
-        gemJoinAdapter,
-        osmProxy,
+        f"Strategy{token.symbol()}",
         chainlink
     )
     yield cloner

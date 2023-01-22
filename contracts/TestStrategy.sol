@@ -10,21 +10,17 @@ import "../interfaces/yearn/IOSMedianizer.sol";
 contract TestStrategy is Strategy {
     constructor(
         address _vault,
+        address _collateralToken,
         address _yVault,
         string memory _strategyName,
-        bytes32 _ilk,
-        address _gemJoin,
-        address _wantToUSDOSMProxy,
         address _chainlinkWantToUSDPriceFeed
     )
         public
         Strategy(
             _vault,
+            _collateralToken,
             _yVault,
             _strategyName,
-            _ilk,
-            _gemJoin,
-            _wantToUSDOSMProxy,
             _chainlinkWantToUSDPriceFeed
         )
     {}
@@ -41,10 +37,6 @@ contract TestStrategy is Strategy {
     }
 
     function freeCollateral(uint256 collateralAmount) public {
-        return _freeCollateralAndRepayDai(collateralAmount, 0);
-    }
-
-    function setCustomOSM(IOSMedianizer _wantToUSDOSMProxy) public {
-        wantToUSDOSMProxy = _wantToUSDOSMProxy;
+        return _freeCollateralAndRepayDebt(collateralAmount, 0);
     }
 }

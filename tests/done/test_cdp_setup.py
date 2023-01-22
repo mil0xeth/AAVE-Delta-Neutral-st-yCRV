@@ -4,12 +4,7 @@ from brownie.convert import to_string
 from brownie.network.state import TxHistory
 from brownie import chain, Wei
 
-# At some point the ilk should be passed to the constructor.
 # Leaving this test as a sanity check.
-def DISABLED_WETH_test_maker_vault_collateral_should_match_strategy(Strategy, cloner, ilk):
-    strategy = Strategy.at(cloner.original())
-    assert to_string(ilk).rstrip("\x00") == "YFI-A"
-
 
 def test_dai_should_be_minted_after_depositing_collateral(
     strategy, vault, yvDAI, token, token_whale, dai, gov, amount

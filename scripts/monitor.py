@@ -34,7 +34,7 @@ def print_monitoring_info_for_strategy(s):
     debt = s.balanceOfDebt()
 
     output.append(
-        f"Balance of CDP #{s.cdpId()}: {s.balanceOfMakerVault()/1e18:.2f} {want.symbol()}"
+        f"Balance of CDP #{s.cdpId()}: {s.balanceOfCollateral()/1e18:.2f} {want.symbol()}"
     )
     output.append(f"Debt: {debt/1e18:.2f} DAI")
     output.append(f"Value of investment: {value/1e18:.2f} DAI")
@@ -48,7 +48,7 @@ def print_monitoring_info_for_strategy(s):
         f"{want.symbol()} price (spotter): {maker_dai_delegate.getSpotPrice(s.ilk())/1e18:.2f}"
     )
     output.append(f"Target c-ratio: {s.collateralizationRatio()/1e18:.2f}")
-    output.append(f"Current c-ratio: {s.getCurrentMakerVaultRatio()/1e18:.2f}")
+    output.append(f"Current c-ratio: {s.getCurrentCollRatio()/1e18:.2f}")
     output.append(
         f"Liquidation ratio: {maker_dai_delegate.getLiquidationRatio(s.ilk())/1e27:.2f}"
     )

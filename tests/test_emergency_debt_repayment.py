@@ -3,7 +3,7 @@ from brownie import chain, reverts, Wei, ZERO_ADDRESS
 
 
 def test_passing_zero_should_repay_all_debt(
-    vault, strategy, token, token_whale, user, gov, dai, dai_whale, yvDAI, amount,
+    vault, strategy, token, token_whale, user, gov, dai, dai_whale, yvDAI, amount, RELATIVE_APPROX
 ):
     #amount = 1_000 * (10 ** token.decimals())
     strategy.setHealthCheck(ZERO_ADDRESS, {"from": gov})
@@ -25,12 +25,12 @@ def test_passing_zero_should_repay_all_debt(
     chain.sleep(3600 * 6)  # 6 hrs needed for profits to unlock
     chain.mine(1)
 
-    prev_collat = strategy.balanceOfMakerVault()
+    prev_collat = strategy.balanceOfCollateral()
     strategy.emergencyDebtRepayment(0, {"from": vault.management()})
 
     # All debt is repaid and collateral is left untouched
-    assert strategy.getCurrentMakerVaultRatio() > strategy.collateralizationRatio()
-    assert strategy.balanceOfMakerVault() == prev_collat
+    assert strategy.getCurrentCollRatio() > strategy.collateralizationRatio()
+    assert pytest.approx(strategy.balanceOfCollateral(), rel=RELATIVE_APPROX) == prev_collat
 
 
 def test_passing_value_over_collat_ratio_does_nothing(
@@ -46,13 +46,13 @@ def test_passing_value_over_collat_ratio_does_nothing(
     assert strategy.balanceOfDebt() > 0
 
     prev_debt = strategy.balanceOfDebt()
-    prev_collat = strategy.balanceOfMakerVault()
+    prev_collat = strategy.balanceOfCollateral()
     c_ratio = strategy.collateralizationRatio()
     strategy.emergencyDebtRepayment(c_ratio + 1, {"from": vault.management()})
 
     # Debt and collat remain the same
     assert strategy.balanceOfDebt() == prev_debt
-    assert strategy.balanceOfMakerVault() == prev_collat
+    assert strategy.balanceOfCollateral() == prev_collat
 
 
 def test_from_ratio_adjusts_debt(
@@ -68,7 +68,7 @@ def test_from_ratio_adjusts_debt(
     assert strategy.balanceOfDebt() > 0
 
     prev_debt = strategy.balanceOfDebt()
-    prev_collat = strategy.balanceOfMakerVault()
+    prev_collat = strategy.balanceOfCollateral()
     c_ratio = strategy.collateralizationRatio()
     strategy.emergencyDebtRepayment(c_ratio * 0.7, {"from": vault.management()})
 
@@ -76,4 +76,4 @@ def test_from_ratio_adjusts_debt(
     assert (
         pytest.approx(strategy.balanceOfDebt(), rel=RELATIVE_APPROX) == prev_debt * 0.7
     )
-    assert strategy.balanceOfMakerVault() == prev_collat
+    assert pytest.approx(strategy.balanceOfCollateral(), rel=RELATIVE_APPROX) == prev_collat

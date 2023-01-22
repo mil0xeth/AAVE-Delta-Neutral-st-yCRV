@@ -5,37 +5,31 @@ from eth_abi import encode_single
 
 
 def test_prod_weth(
-    weth, dai, strategist, weth_whale, dai_whale, MakerDaiDelegateCloner, Strategy, token, import_swap_router_selection_dict, 
+    weth, dai, strategist, weth_whale, dai_whale, MarketLibCloner, Strategy, token, import_swap_router_selection_dict, 
 ):
     if (token != weth):
         vault = Contract("0xa258C4606Ca8206D8aA700cE2143D7db854D168c")
         gov = vault.governance()
         yvault = Contract("0xdA816459F1AB5631232FE5e97a05BBBb94970c95")
-        gemJoinAdapter = Contract("0xF04a5cC80B1E94C69B48f5ee68a08CD2F09A7c3E")
-        osmProxy = Contract("0xCF63089A8aD2a9D8BD6Bb8022f3190EB7e1eD0f1")
+        collateralToken = Contract("0x41c84c0e2EE0b740Cf0d31F63f3B6F627DC6b393")
 
         cloner = strategist.deploy(
-            MakerDaiDelegateCloner,
+            MarketLibCloner,
             vault,
+            collateralToken,
             yvault,
             f"StrategyMakerV2_ETH-C",
-            "0x4554482d43000000000000000000000000000000000000000000000000000000",  # ETH-C
-            gemJoinAdapter,
-            osmProxy,
-            ZERO_ADDRESS
+            "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419"
         )
 
         original_strategy_address = history[-1].events["Deployed"]["original"]
         strategy = Strategy.at(original_strategy_address)
         swap_router_selection_dict = import_swap_router_selection_dict
-        strategy.setSwapRouterSelection(swap_router_selection_dict["WETH"]['swapRouterSelection'], swap_router_selection_dict["WETH"]['feeInvestmentTokenToMidUNIV3'], swap_router_selection_dict["WETH"]['feeMidToWantUNIV3'], swap_router_selection_dict["WETH"]['midTokenChoice'], {"from": gov})
+        strategy.setSwapRouterSelection(swap_router_selection_dict["WETH"]['swapRouterSelection'], swap_router_selection_dict["WETH"]['feeBorrowTokenToMidUNIV3'], swap_router_selection_dict["WETH"]['feeMidToWantUNIV3'], swap_router_selection_dict["WETH"]['midTokenChoice'], {"from": gov})
         strategy.setHealthCheck(ZERO_ADDRESS, {"from": gov})
         strategy.setDoHealthCheck(False, {"from": gov})
         assert strategy.strategist() == "0x16388463d60FFE0661Cf7F1f31a7D658aC790ff7"
         assert strategy.keeper() == "0x736D7e3c5a6CB2CE3B764300140ABF476F6CFCCF"
-
-        # White-list the strategy in the OSM!
-        osmProxy.setAuthorized(strategy, {"from": gov})
 
         # Reduce other strategies debt allocation
         for i in range(0, 20):
@@ -66,7 +60,6 @@ def test_prod_weth(
 
         # Send some profit to yvDAI
         dai.transfer(yvault, yvault.totalDebt() * 0.02, {"from": dai_whale})
-        strategy.setLeaveDebtBehind(False, {"from": gov})
         tx = strategy.harvest({"from": gov})
 
         print(f"After second harvest")
@@ -97,20 +90,18 @@ def test_prod_weth(
 
 
 def test_prod_universal(
-    token, dai, strategist, token_whale, dai_whale, MakerDaiDelegateCloner, Strategy, production_vault, yvDAI, chainlink, gemJoinAdapter, osmProxy, yfi, ilk, amount, YFIwhitelistedOSM, import_swap_router_selection_dict
+    token, dai, strategist, token_whale, dai_whale, MarketLibCloner, Strategy, production_vault, yvDAI, chainlink, amount, import_swap_router_selection_dict, collateralToken,
 ):
     vault = production_vault
     gov = vault.governance()
     yvault = yvDAI
     
     cloner = strategist.deploy(
-        MakerDaiDelegateCloner,
+        MarketLibCloner,
         vault,
+        collateralToken,
         yvault, 
         f"StrategyMakerV3{token.symbol()}",
-        ilk,
-        gemJoinAdapter,
-        osmProxy,
         chainlink
     )
 
@@ -119,20 +110,9 @@ def test_prod_universal(
     strategy.setHealthCheck(ZERO_ADDRESS, {"from": gov})
     strategy.setDoHealthCheck(False, {"from": gov})
     swap_router_selection_dict = import_swap_router_selection_dict
-    strategy.setSwapRouterSelection(swap_router_selection_dict[token.symbol()]['swapRouterSelection'], swap_router_selection_dict[token.symbol()]['feeInvestmentTokenToMidUNIV3'], swap_router_selection_dict[token.symbol()]['feeMidToWantUNIV3'], swap_router_selection_dict[token.symbol()]['midTokenChoice'], {"from": gov})
+    strategy.setSwapRouterSelection(swap_router_selection_dict[token.symbol()]['swapRouterSelection'], swap_router_selection_dict[token.symbol()]['feeBorrowTokenToMidUNIV3'], swap_router_selection_dict[token.symbol()]['feeMidToWantUNIV3'], swap_router_selection_dict[token.symbol()]['midTokenChoice'], {"from": gov})
     assert strategy.strategist() == "0x16388463d60FFE0661Cf7F1f31a7D658aC790ff7"
     assert strategy.keeper() == "0x736D7e3c5a6CB2CE3B764300140ABF476F6CFCCF"
-
-    if (token == yfi):
-        try: #in case it's YFI token
-            YFIwhitelistedOSM.set_user(osmProxy, True, {"from": gov})
-        except:
-            print("osmProxy not responsive")
-    # White-list the strategy in the OSM!
-    try:
-        osmProxy.setAuthorized(strategy, {"from": gov})
-    except:
-        print("osm not responsive")
 
     # Reduce other strategies debt allocation
     for i in range(0, 20):
@@ -163,7 +143,6 @@ def test_prod_universal(
 
     # Send some profit to yvDAI
     dai.transfer(yvault, yvault.totalDebt() * 0.02, {"from": dai_whale})
-    strategy.setLeaveDebtBehind(False, {"from": gov})
     tx = strategy.harvest({"from": gov})
 
     print(f"After second harvest")

@@ -18,6 +18,7 @@ def test_high_profit_causes_healthcheck_revert(
         vault.strategies(strategy).dict()["totalDebt"] * ((profitLimit + 1) / maxBPS),
         {"from": token_whale},
     )
+    strategy.setDoHealthCheck(True, {"from": gov})
     with reverts("!healthcheck"):
         strategy.harvest({"from": gov})
 
@@ -54,13 +55,14 @@ def test_high_loss_causes_healthcheck_revert(
     test_strategy.harvest({"from": gov})
 
     # Unlock part of the collateral
-    test_strategy.freeCollateral(test_strategy.balanceOfMakerVault() * (0.05 + ((lossRatio + 1) / maxBPS)))
+    test_strategy.freeCollateral(test_strategy.balanceOfCollateral() * (0.05 + ((lossRatio + 1) / maxBPS)))
 
     # Simulate loss by transferring away unlocked collateral
     token.transfer(token_whale, token.balanceOf(test_strategy), {"from": test_strategy})
 
     vault.updateStrategyDebtRatio(test_strategy, 5_000, {"from": gov})
 
+    test_strategy.setDoHealthCheck(True, {"from": gov})
     with reverts("!healthcheck"):
         test_strategy.harvest({"from": gov})
 
@@ -78,7 +80,7 @@ def test_loss_under_max_ratio_does_not_revert(
     test_strategy.harvest({"from": gov})
 
     # Unlock part of the collateral
-    test_strategy.freeCollateral(test_strategy.balanceOfMakerVault() * (((lossRatio - 1) / maxBPS)))
+    test_strategy.freeCollateral(test_strategy.balanceOfCollateral() * (((lossRatio - 1) / maxBPS)))
 
     # Simulate loss by transferring away unlocked collateral
     token.transfer(token_whale, token.balanceOf(test_strategy), {"from": test_strategy})
